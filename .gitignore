@@ -72,3 +72,10 @@ docs/_build
 
 # Mypy Cache
 .mypy_cache/
+
+sandbox/**
+output/**
+.venv/*
+*.diff
+**/.env
+*venv*

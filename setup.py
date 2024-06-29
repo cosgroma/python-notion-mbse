@@ -5,6 +5,10 @@ from pathlib import Path
 from setuptools import find_packages
 from setuptools import setup
 
+def get_requirements(filename="requirements.txt"):
+    with Path.open(filename) as f:
+        requires = [line.replace("\n", "") for line in f.readlines()]
+    return requires
 
 def read(*names, **kwargs):
     with Path(__file__).parent.joinpath(*names).open(encoding=kwargs.get("encoding", "utf8")) as fh:
@@ -39,9 +43,6 @@ setup(
         "Programming Language :: Python",
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3 :: Only",
-        "Programming Language :: Python :: 3.8",
-        "Programming Language :: Python :: 3.9",
-        "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
         "Programming Language :: Python :: 3.12",
         "Programming Language :: Python :: Implementation :: CPython",
@@ -60,10 +61,7 @@ setup(
         # eg: "keyword1", "keyword2", "keyword3",
     ],
     python_requires=">=3.8",
-    install_requires=[
-        "click",
-        # eg: "aspectlib==1.1.1", "six>=1.7",
-    ],
+    install_requires=get_requirements(),
     extras_require={
         # eg:
         #   "rst": ["docutils>=0.11"],
