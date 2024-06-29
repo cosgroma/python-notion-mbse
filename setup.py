@@ -5,10 +5,12 @@ from pathlib import Path
 from setuptools import find_packages
 from setuptools import setup
 
+
 def get_requirements(filename="requirements.txt"):
     with Path.open(filename) as f:
         requires = [line.replace("\n", "") for line in f.readlines()]
     return requires
+
 
 def read(*names, **kwargs):
     with Path(__file__).parent.joinpath(*names).open(encoding=kwargs.get("encoding", "utf8")) as fh:
