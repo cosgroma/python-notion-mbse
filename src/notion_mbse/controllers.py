@@ -4,7 +4,7 @@
 Details:
 Created:   Sunday, June 30th 2024, 1:52:47 pm
 -----
-Last Modified: 06/30/2024 02:18:45
+Last Modified: 06/30/2024 02:46:58
 Modified By: Mathew Cosgrove
 -----
 """
@@ -280,33 +280,64 @@ class MongoCollectionController(BaseController[T]):
 
 
 class NotionDatabaseController(BaseController[T]):
-    def __init__(self, token: str, database_id: Optional[str] = None, DataClass: Optional[Type[T]] = None):
+    def __init__(self, token: str, database_id: Optional[str] = None, model: Optional[Type[T]] = None):
         super().__init__()
         self.token = token
         self.n_client = NotionClient(token=token)
         self.database_id = database_id
-        self.DataClass = DataClass or Page  # Default to Page if no DataClass provided
-        self._db = NotionDatabase(token=token, database_id=self.database_id, DataClass=self.DataClass)
+        self._model: Type[T] = model or Page
+        self._db = NotionDatabase(token=token, database_id=self.database_id, DataClass=self._model)
+
+    @property
+    def model(self) -> Type[T]:
+        return self._model
+
+    @model.setter
+    def model(self, model: Type[T]):
+        self._model = model
 
     def create(self, element: Type[T]) -> T:
         # Implementation specific to Notion
         return self._db.create(obj=element)
 
-    def read(self, query: Dict[str, Any]) -> List[T]:
-        # Implementation specific to Notion
-        return self._db.read(query["id"])
+    def read(self, element: T) -> T:
+        """
+        Read the  from the database based on a query.
+        """
+        self._db.read(obj=element)
 
-    def update(self, element: Type[T]) -> bool:
-        # Implementation specific to Notion
-        return self._db.update(element, properties=element.model_dump())
+    def get(self, query: Dict[str, Any]) -> Optional[T]:
+        """
+        Fetch an entry from the database based on a query.
+        """
+        # Implementation fetching data from the database
 
-    def delete(self, obj: Type[T]) -> bool:
-        # Implementation specific to Notion
-        self._db.delete(obj)
+    def read_all(self, query: Dict[str, Any]) -> List[T]:
+        """
+        Read all entries from the database.
+        """
 
-    def __iter__(self) -> List[T]:
-        # Specific to Notion
-        return iter(self._db.get_pages())
+    def update(self, element: T) -> bool:
+        """
+        Update an entry in the database.
+        """
+
+    def update_many(self, query: Dict[str, Any], update_data: Dict[str, Any]) -> bool:
+        """
+        Update all entries in the database based on a query.
+        """
+
+    def delete(self, element: T) -> bool:
+        """
+        Delete an entry from the database.
+        """
+
+    def __iter__(self):
+        """
+        Iterate over all entries in the database.
+        """
 
     def __repr__(self):
-        return f"NotionDatabaseController(db_id={self.database_id})"
+        """
+        Return a string representation of the database controller.
+        """
