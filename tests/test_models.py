@@ -1,4 +1,25 @@
+from bson import ObjectId
+
 from notion_mbse.models import Element
+from notion_mbse.models import PydanticObjectId
+
+
+def test_pydantic_object_id():
+    oid = PydanticObjectId()
+    assert oid == str(oid)
+    assert oid == str(ObjectId(oid))
+    assert oid == str(ObjectId(str(oid)))
+    try:
+        PydanticObjectId("12345")
+        raise AssertionError
+    except ValueError:
+        assert True
+
+    try:
+        PydanticObjectId(12345)
+        raise AssertionError
+    except ValueError:
+        assert True
 
 
 def test_element():
