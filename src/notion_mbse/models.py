@@ -4,7 +4,7 @@
 Details:
 Created:   Saturday, June 29th 2024, 7:16:19 pm
 -----
-Last Modified: 06/30/2024 01:27:03
+Last Modified: 06/30/2024 02:10:12
 Modified By: Mathew Cosgrove
 -----
 """
@@ -133,32 +133,37 @@ class ControllableElement(Element):
     def to_dict(self):
         return self.model_dump()
 
-    def create(self):
+    def create(self) -> bool:
         if self.controller is not None:
             obj = self.controller.create(self.to_element())
             self.set_with_element(obj)
+            return True
         else:
             raise ValueError("Element has no controller to create")
 
-    def update(self):
+    def update(self) -> bool:
         if self.controller is not None:
             self.controller.update(self.to_element())
+            return True
         else:
             raise ValueError("Element has no controller to update")
 
-    def read(self):
+    def read(self) -> bool:
         if self.controller is not None:
-            read_objs = self.controller.read(self.to_element())
-            obj = read_objs[0]
-            self.set_with_element(obj)
-            # change the element attributes with the read object
-
+            obj = self.controller.read(self.to_element())
+            if obj is not None:
+                self.set_with_element(obj)
+                return True
+            return False
         else:
             raise ValueError("Element has no controller to read")
 
-    def delete(self):
+    def delete(self) -> bool:
         if self.controller is not None:
             self.controller.delete(self)
+            return True
+        else:
+            raise ValueError("Element has no controller to delete")
 
 
 class BasePage(Page):

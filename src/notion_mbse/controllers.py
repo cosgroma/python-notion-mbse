@@ -4,7 +4,7 @@
 Details:
 Created:   Sunday, June 30th 2024, 1:52:47 pm
 -----
-Last Modified: 06/30/2024 01:52:48
+Last Modified: 06/30/2024 02:18:45
 Modified By: Mathew Cosgrove
 -----
 """
@@ -15,6 +15,7 @@ __version__ = "0.1.0"
 
 import json
 from pathlib import Path
+from pprint import pprint
 from typing import Any
 from typing import Dict
 from typing import List
@@ -31,6 +32,7 @@ from pymongo.errors import PyMongoError
 
 from .base_controller import BaseController
 from .base_controller import T
+from .models import PydanticObjectId
 
 
 class MongoCollectionController(BaseController[T]):
@@ -98,7 +100,7 @@ class MongoCollectionController(BaseController[T]):
             raise
 
     # @abstractmethod
-    def read(self, element: T) -> T:
+    def read(self, element: T) -> Optional[T]:
         """
         Reads a document from the collection.
 
@@ -109,6 +111,10 @@ class MongoCollectionController(BaseController[T]):
             T: The document as a Pydantic model instance.
         """
         document = self.collection.find_one({"id": element.id})
+        if not document:
+            return None
+        pprint(document)
+        document["id"] = PydanticObjectId(document["id"])
         return self.model(**document)
 
     # @abstractmethod
