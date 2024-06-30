@@ -4,7 +4,7 @@
 Details:
 Created:   Saturday, June 29th 2024, 7:16:19 pm
 -----
-Last Modified: 06/29/2024 08:34:27
+Last Modified: 06/30/2024 01:27:03
 Modified By: Mathew Cosgrove
 -----
 """
@@ -16,12 +16,12 @@ __version__ = "0.1.0"
 from datetime import datetime
 from typing import Any
 from typing import Dict
+from typing import Iterable
 from typing import List
 from typing import Optional
 
 # from pydantic.schema import schema
 from bson import ObjectId
-from databasetools.controller.base_controller import DatabaseController
 from notion_objects import URL
 from notion_objects import Checkbox
 from notion_objects import Date
@@ -31,10 +31,13 @@ from notion_objects import Page
 from notion_objects import Status
 from notion_objects import Text
 from notion_objects import TitleText
+from notion_objects.properties import Property
 from pydantic import BaseModel
 from pydantic import ConfigDict
 from pydantic import Field
 from pydantic import field_serializer
+
+from .base_controller import BaseController
 
 
 class PydanticObjectId(ObjectId):
@@ -77,12 +80,14 @@ class Element(BaseModel):
     ref_ids: List[str] = Field([], description="The reference IDs associated with the element.")
 
     @field_serializer("modified_at")
-    def serialize_dt(self, dt: datetime, _info):
-        return dt.timestamp()
+    def serialize_dt(self, modified_at: datetime, _info):
+        if modified_at is None:
+            return None
+        return modified_at.timestamp()
 
-    @field_serializer("id")
-    def serialize_id(self, id: PydanticObjectId, _info):
-        return str(id)
+    # @field_serializer("id")
+    # def serialize_id(self, id: PydanticObjectId, _info):
+    #     return str(id)
 
     # @model_serializer
     # def ser_model(self) -> Dict[str, Any]:
@@ -109,14 +114,17 @@ class Element(BaseModel):
 
 
 class ControllableElement(Element):
-    controller: Optional[DatabaseController] = Field(None, description="The controller that manages the element in the database.")
+    controller: Optional[BaseController] = Field(None, description="The controller that manages the element in the database.")
 
-    def use_controller(self, controller: DatabaseController):
+    def use_controller(self, controller: BaseController):
         self.controller = controller
+
+    def to_element(self) -> Element:
+        return Element(**self.model_dump())
 
     @classmethod
     def from_element(cls, element: Element):
-        return cls(Element.model_dump())
+        return cls(**element.model_dump())
 
     @classmethod
     def from_dict(cls, element_dict: Dict[str, Any]):
@@ -126,20 +134,21 @@ class ControllableElement(Element):
         return self.model_dump()
 
     def create(self):
-        if self.controller:
-            self.controller.create(self)
+        if self.controller is not None:
+            obj = self.controller.create(self.to_element())
+            self.set_with_element(obj)
         else:
             raise ValueError("Element has no controller to create")
 
     def update(self):
-        if self.controller:
-            self.controller.update(self)
+        if self.controller is not None:
+            self.controller.update(self.to_element())
         else:
             raise ValueError("Element has no controller to update")
 
     def read(self):
-        if self.controller:
-            read_objs = self.controller.read(self)
+        if self.controller is not None:
+            read_objs = self.controller.read(self.to_element())
             obj = read_objs[0]
             self.set_with_element(obj)
             # change the element attributes with the read object
@@ -147,8 +156,8 @@ class ControllableElement(Element):
         else:
             raise ValueError("Element has no controller to read")
 
-    def __del__(self):
-        if self.controller:
+    def delete(self):
+        if self.controller is not None:
             self.controller.delete(self)
 
 
@@ -157,6 +166,9 @@ class BasePage(Page):
 
     def __str__(self):
         return f"{self.__class__.__name__}({self.id} - {self.name})"
+
+    def get_properties(self) -> Iterable[Property]:
+        return super()._get_properties()
 
 
 def create_dynamic_page_class(name, fields):
