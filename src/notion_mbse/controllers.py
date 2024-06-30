@@ -1,3 +1,18 @@
+#!/usr/bin/env python
+"""
+@package   controllers
+Details:
+Created:   Sunday, June 30th 2024, 1:52:47 pm
+-----
+Last Modified: 06/30/2024 01:52:48
+Modified By: Mathew Cosgrove
+-----
+"""
+
+__author__ = "Mathew Cosgrove"
+__file__ = "controllers.py"
+__version__ = "0.1.0"
+
 import json
 from pathlib import Path
 from typing import Any
