@@ -1,0 +1,15 @@
+{
+    "files.watcherExclude": {
+        "**/.venv/**": true
+    },
+    "files.exclude": {
+        "**/.tox": true,
+        "**/.venv": true,
+        "**/build": true,
+        "**/dist": true,
+        "**/htmlcov": true,
+        "**/.coverage": true,
+        "**/.ruff_cache": true,
+        "**/coverage.xml": true,
+    }
+}

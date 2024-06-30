@@ -1,7 +1,9 @@
 {
 	"folders": [
 		{
-			"path": "."
+			"path": ".",
+			"name": "python-notion-mbse"
 		}
 	]
+
 }
