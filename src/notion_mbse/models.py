@@ -4,7 +4,7 @@
 Details:
 Created:   Saturday, June 29th 2024, 7:16:19 pm
 -----
-Last Modified: 06/29/2024 08:13:33
+Last Modified: 06/29/2024 08:34:27
 Modified By: Mathew Cosgrove
 -----
 """
@@ -34,13 +34,10 @@ from notion_objects import TitleText
 from pydantic import BaseModel
 from pydantic import ConfigDict
 from pydantic import Field
+from pydantic import field_serializer
 
 
 class PydanticObjectId(ObjectId):
-    @classmethod
-    def __get_validators__(cls):
-        yield cls.validate
-
     @classmethod
     def validate(cls, v):
         if isinstance(v, ObjectId):
@@ -57,7 +54,7 @@ class PydanticObjectId(ObjectId):
 class Element(BaseModel):
     """A base element contains common attributes that are shared by all elements. It contains information about the unique identifier, name, description, version, tags, type, sub-type, created by, created at, modified by, modified at, status, and documentation."""
 
-    model_config = ConfigDict(arbitrary_types_allowed=True, json_encoders={ObjectId: str})
+    model_config = ConfigDict(arbitrary_types_allowed=True)
     id: PydanticObjectId = Field(
         default_factory=PydanticObjectId,
         description="The unique identifier of the element.",
@@ -78,6 +75,33 @@ class Element(BaseModel):
     status: Optional[str] = Field(None, description="The status of the element.")
     documentation: Optional[str] = Field(None, description="The documentation associated with the element.")
     ref_ids: List[str] = Field([], description="The reference IDs associated with the element.")
+
+    @field_serializer("modified_at")
+    def serialize_dt(self, dt: datetime, _info):
+        return dt.timestamp()
+
+    @field_serializer("id")
+    def serialize_id(self, id: PydanticObjectId, _info):
+        return str(id)
+
+    # @model_serializer
+    # def ser_model(self) -> Dict[str, Any]:
+    #     return {
+    #         "id": str(self.id),
+    #         "name": self.name,
+    #         "description": self.description,
+    #         "version": self.version,
+    #         "tags": self.tags,
+    #         "type": self.type,
+    #         "sub_type": self.sub_type,
+    #         "created_by": self.created_by,
+    #         "created_at": self.created_at,
+    #         "modified_by": self.modified_by,
+    #         "modified_at": self.modified_at,
+    #         "status": self.status,
+    #         "documentation": self.documentation,
+    #         "ref_ids": self.ref_ids
+    #     }
 
     def set_with_element(self, element: "Element"):
         for key, value in element.model_dump().items():
