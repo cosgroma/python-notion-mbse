@@ -1,1 +1,7 @@
 click
+beautifulsoup4
+requests
+pymongo
+pydantic
+python-dotenv
+databasetools @ git+https://github.com/cosgroma/database-tools@main
