@@ -6,8 +6,8 @@ import mongomock
 from pymongo import MongoClient
 from pymongo.collection import Collection
 
+from notion_mbse.controllers import ControllableElement
 from notion_mbse.controllers import MongoCollectionController
-from notion_mbse.models import ControllableElement
 from notion_mbse.models import Element
 
 MONGO_URI = os.getenv("MONGO_URI")

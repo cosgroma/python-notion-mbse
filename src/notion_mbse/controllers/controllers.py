@@ -4,7 +4,7 @@
 Details:
 Created:   Sunday, June 30th 2024, 1:52:47 pm
 -----
-Last Modified: 06/30/2024 02:46:58
+Last Modified: 06/30/2024 08:43:47
 Modified By: Mathew Cosgrove
 -----
 """
@@ -30,9 +30,9 @@ from pydantic import ValidationError
 from pymongo.collection import Collection
 from pymongo.errors import PyMongoError
 
+from ..models import PydanticObjectId
 from .base_controller import BaseController
 from .base_controller import T
-from .models import PydanticObjectId
 
 
 class MongoCollectionController(BaseController[T]):
