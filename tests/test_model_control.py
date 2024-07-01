@@ -1,4 +1,4 @@
-from notion_mbse.models import ControllableElement
+from notion_mbse.controllers import ControllableElement
 from notion_mbse.models import Element
 
 

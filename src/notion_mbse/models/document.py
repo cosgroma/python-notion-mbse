@@ -4,7 +4,7 @@
 Details:
 Created:   Sunday, June 30th 2024, 8:36:38 pm
 -----
-Last Modified: 06/30/2024 09:02:30
+Last Modified: 06/30/2024 09:29:52
 Modified By: Mathew Cosgrove
 -----
 """
@@ -37,6 +37,11 @@ class DocumentType(Enum):
     TRAINING = "Training"
     USER_MANUAL = "User Manual"
     TECHNICAL_MANUAL = "Technical Manual"
+    PRESENTATION = "Presentation"
+    REPORT = "Report"
+    PROPOSAL = "Proposal"
+    SPECIFICATION = "Specification"
+    PLAN = "Plan"
 
 
 class DocumentSectionType(Enum):
@@ -96,6 +101,7 @@ class DocumentSectionFormatType(Enum):
 
 class DocumentSection(Element):
     type: Optional[DocumentSectionType] = Field(None, description="The type of the section.")
+    sub_type: Optional[DocumentSectionFormatType] = Field(None, description="The format of the section.")
     section_level: Optional[int] = Field(None, description="The level of the section.")
     section_number: Optional[int] = Field(None, description="The number of the section.")
     document: Optional[str] = Field(None, description="The document the section belongs to.")
@@ -111,46 +117,74 @@ class DocumentSection(Element):
 
 
 class Document(Element):
-    name: Optional[str] = Field(None, description="The name of the document.")
     type: Optional[DocumentType] = Field(None, description="The type of the document.")
     section_ids: Optional[List[str]] = Field([], description="The section ids of the document.")
-    # @model_serializer
-    # def ser_model(self) -> Dict[str, Any]:
-    #     return {
-    #         "id": str(self.id),
-    #         "name": self.name,
-    #         "description": self.description,
-    #         "version": self.version,
-    #         "tags": self.tags,
-    #         "type": self.type,
-    #         "sub_type": self.sub_type,
-    #         "created_by": self.created_by,
-    #         "created_at": self.created_at,
-    #         "modified_by": self.modified_by,
-    #         "modified_at": self.modified_at,
-    #         "status": self.status,
-    #         "documentation": self.documentation,
-    #         "ref_ids": self.ref_ids
-    #     }
+    summary: Optional[str] = Field(None, description="The summary of the document.")
+    keywords: Optional[List[str]] = Field([], description="The keywords of the document.")
+    references: Optional[List[str]] = Field([], description="The references of the document.")
 
 
-# # Example usage
-# section = DocumentSection(
-#     name="Introduction",
-#     section_level=1,
-#     section_description="This is the introduction section.",
-#     document="Example Document",
-#     section_number=1,
-#     content="The content of the introduction section.",
-#     section_length=100,
-#     references=["Ref1", "Ref2"],
-#     tags=["intro", "overview"],
-#     creation_date=datetime.now(),
-#     modification_date=datetime.now(),
-#     author="John Doe",
-#     summary="A brief overview of the introduction.",
-#     related_sections=["Section 2", "Section 3"],
-#     section_id="12345",
-# )
+class FileType(Enum):
+    """An enumeration of the different types of files."""
 
-# print(section.json(indent=2))
+    TEXT = "Text"
+    IMAGE = "Image"
+    AUDIO = "Audio"
+    VIDEO = "Video"
+    DOCUMENT = "Document"
+    SPREADSHEET = "Spreadsheet"
+    PRESENTATION = "Presentation"
+    DATABASE = "Database"
+    CODE = "Code"
+    EXECUTABLE = "Executable"
+    ARCHIVE = "Archive"
+    COMPRESSED = "Compressed"
+    DISK_IMAGE = "Disk Image"
+    VIRTUAL_MACHINE = "Virtual Machine"
+    CONFIGURATION = "Configuration"
+    LOG = "Log"
+    BACKUP = "Backup"
+    TEMPORARY = "Temporary"
+    SYSTEM = "System"
+    WEB = "Web"
+    EMAIL = "Email"
+    CONTACT = "Contact"
+    CALENDAR = "Calendar"
+    NOTE = "Note"
+    BOOKMARK = "Bookmark"
+    LINK = "Link"
+    REFERENCE = "Reference"
+    TEMPLATE = "Template"
+    FORM = "Form"
+    SURVEY = "Survey"
+    QUESTIONNAIRE = "Questionnaire"
+    POLL = "Poll"
+    QUIZ = "Quiz"
+    EXAM = "Exam"
+    TEST = "Test"
+    SURVEILLANCE = "Surveillance"
+    MONITORING = "Monitoring"
+    AUDIT = "Audit"
+    INSPECTION = "Inspection"
+    REVIEW = "Review"
+    EVALUATION = "Evaluation"
+    ASSESSMENT = "Assessment"
+    ANALYSIS = "Analysis"
+    REPORT = "Report"
+    PROPOSAL = "Proposal"
+    SPECIFICATION = "Specification"
+    PLAN = "Plan"
+    AGREEMENT = "Agreement"
+    CONTRACT = "Contract"
+    LICENSE = "License"
+    CERTIFICATE = "Certificate"
+    DIPLOMA = "Diploma"
+    DEGREE = "Degree"
+
+
+class FileDocument(Document):
+    type: Optional[FileType] = Field(None, description="The type of the file.")
+    file_path: Optional[str] = Field(None, description="The path of the file.")
+    file_size: Optional[int] = Field(None, description="The size of the file.")
+    file_format: Optional[str] = Field(None, description="The format of the file.")
+    file_ext: Optional[str] = Field(None, description="The extension of the file.")
