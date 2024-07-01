@@ -2,6 +2,8 @@ from bson import ObjectId
 
 from notion_mbse.models import Element
 from notion_mbse.models import PydanticObjectId
+from notion_mbse.models import Relationship
+from notion_mbse.models import RelationshipType
 
 
 def test_pydantic_object_id():
@@ -92,15 +94,60 @@ def test_element_set_with_element():
     assert element.modified_at is None
 
 
-# def use_controller(self, controller: BaseController):
-# def to_element(self) -> Element:
-# def from_element(cls, element: Element):
-# def from_dict(cls, element_dict: Dict[str, Any]):
-# def to_dict(self):
-# def create(self):
-# def update(self):
-# def read(self):
-# def delete(self):
-# def __str__(self):
-# def create_dynamic_page_class(name, fields):
-# def create_db_page_from_schema(schema):
+def test_relationship():
+    source_element = Element(
+        name="Source Element",
+        description="This is the source element.",
+        version="1.0.0",
+        tags=["source", "test"],
+        sub_type="source",
+        created_by="John Doe",
+        modified_by="Jane Doe",
+        status="active",
+        documentation="This is the documentation for the source element.",
+        ref_ids=["Ref1", "Ref2"],
+    )
+    target_element = Element(
+        name="Target Element",
+        description="This is the target element.",
+        version="1.0.0",
+        tags=["target", "test"],
+        sub_type="target",
+        created_by="John Doe",
+        modified_by="Jane Doe",
+        status="active",
+        documentation="This is the documentation for the target element.",
+        ref_ids=["Ref1", "Ref2"],
+    )
+    relationship = Relationship(
+        name="Example Relationship",
+        description="This is an example relationship.",
+        version="1.0.0",
+        tags=["example", "test"],
+        sub_type="example",
+        created_by="John Doe",
+        modified_by="Jane Doe",
+        status="active",
+        documentation="This is the documentation for the example relationship.",
+        ref_ids=["Ref1", "Ref2"],
+        type=RelationshipType.ASSOCIATION,
+        source_element_id=source_element.id,
+        target_element_id=target_element.id,
+    )
+    print(relationship.model_dump())
+    rev_relationship = Relationship(
+        name="Example Relationship",
+        description="This is an example relationship.",
+        version="1.0.0",
+        tags=["example", "test"],
+        sub_type="example",
+        created_by="John Doe",
+        modified_by="Jane Doe",
+        status="active",
+        documentation="This is the documentation for the example relationship.",
+        ref_ids=["Ref1", "Ref2"],
+        type=RelationshipType.ASSOCIATION,
+        source_element_id=target_element.id,
+        target_element_id=source_element.id,
+    )
+    print(rev_relationship.model_dump())

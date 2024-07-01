@@ -5,13 +5,14 @@ from notion_mbse.models.document import DocumentSectionType
 from notion_mbse.models.document import DocumentType
 from notion_mbse.models.document import FileDocument
 from notion_mbse.models.document import FileType
+from notion_mbse.models.document import html_to_docsections
 
 
 def test_document_section():
     section = DocumentSection(
         name="Introduction",
-        type=DocumentSectionType.SECTION,
-        sub_type=DocumentSectionFormatType.TEXT,
+        type=DocumentSectionType.INTRODUCTION,
+        sub_type=DocumentSectionFormatType.SECTION,
         section_level=1,
         section_description="This is the introduction section.",
         document="Example Document",
@@ -26,7 +27,7 @@ def test_document_section():
         section_id="12345",
     )
 
-    print(section.model_dump(mode="json"))
+    print(section.model_dump())
 
 
 def test_document():
@@ -41,15 +42,14 @@ def test_document():
         status="active",
         documentation="This is the documentation for the example document.",
         ref_ids=["Ref1", "Ref2"],
-        id="12345",
-        type=DocumentType.FILE,
+        type=DocumentType.GENERAL,
         section_ids=["12345", "67890"],
         summary="A brief overview of the example document.",
         keywords=["example", "test"],
         references=["Ref1", "Ref2"],
     )
 
-    print(document.model_dump(mode="json"))
+    print(document.model_dump())
 
 
 def test_file_document():
@@ -64,7 +64,6 @@ def test_file_document():
         status="active",
         documentation="This is the documentation for the example file.",
         ref_ids=["Ref1", "Ref2"],
-        id="12345",
         type=FileType.DOCUMENT,
         section_ids=["12345", "67890"],
         summary="A brief overview of the example file.",
@@ -76,4 +75,33 @@ def test_file_document():
         file_ext="txt",
     )
 
-    print(file_document.model_dump(mode="json"))
+    print(file_document.model_dump())
+
+
+def test_document_from_html():
+    html_content = """
+<html>
+<head><title>Example Document</title></head>
+<body>
+<h1>Introduction</h1>
+<p>This is the introduction section.</p>
+<h2>Background</h2>
+<p>Background information.</p>
+<p>More background information.</p>
+<h2>Objectives</h2>
+<p>Objectives of the document.</p>
+<p>Details about objectives.</p>
+<h3>Specific Goals</h3>
+<p>Details about specific goals.</p>
+<ol>
+<li>Goal 1</li>
+<li>Goal 2</li>
+</ol>
+</body>
+</html>
+"""
+
+    document_name = "Example Document"
+    sections = html_to_docsections(html_content, document_name)
+    for section in sections:
+        print(section.model_dump())

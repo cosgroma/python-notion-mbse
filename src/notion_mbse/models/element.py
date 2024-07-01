@@ -1,4 +1,5 @@
 from datetime import datetime
+from enum import Enum
 from typing import List
 from typing import Optional
 
@@ -81,3 +82,43 @@ class Element(BaseModel):
     def set_with_element(self, element: "Element"):
         for key, value in element.model_dump().items():
             setattr(self, key, value)
+
+
+class RelationshipType(Enum):
+    ASSOCIATION = "Association"
+    DEPENDENCY = "Dependency"
+    AGGREGATION = "Aggregation"
+    COMPOSITION = "Composition"
+    INHERITANCE = "Inheritance"
+    REALIZATION = "Realization"
+
+
+class Relationship(Element):
+    """A relationship between two elements.
+
+    A relationship element represents a relationship between two elements. It contains information about the source element, target element, and the type of relationship between the two elements.
+    """
+
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+    type: Optional[RelationshipType] = Field(None, description="The type of relationship.")
+    source_element_id: PydanticObjectId = Field(description="The unique identifier of the source element.")
+    target_element_id: Optional[PydanticObjectId] = Field(None, description="The unique identifier of the target element.")
+
+
+# class ElementAttribute(Element):
+#     """An element attribute.
+
+#     An element attribute represents an attribute of an element. It contains information about the name, type, and value of the attribute.
+#     """
+#     model_config = ConfigDict(arbitrary_types_allowed=True)
+#     type: Optional[str] = Field(None, description="The type of the attribute.")
+#     value: Optional[str] = Field(None, description="The value of the attribute.")
+
+# class ElementMethod(Element):
+#     """An element method.
+
+#     An element method represents a method of an element. It contains information about the name, parameters, and return type of the method.
+#     """
+#     model_config = ConfigDict(arbitrary_types_allowed=True)
+#     parameters: Optional[List[str]] = Field([], description="The parameters of the method.")
+#     return_type: Optional[str] = Field(None, description="The return type of the method.")
