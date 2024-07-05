@@ -44,7 +44,7 @@ def cli():
 @cli.command()
 @common_options
 @click.argument("url")
-def download(url, type, dir, key):
+def download(url, type, key, dir, verbose, quiet):
     """Download files from Notion."""
     click.echo(f"Downloading from {url} as {type} to {dir} using key {key}")
 
