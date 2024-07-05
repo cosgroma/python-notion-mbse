@@ -122,3 +122,22 @@ class Relationship(Element):
 #     model_config = ConfigDict(arbitrary_types_allowed=True)
 #     parameters: Optional[List[str]] = Field([], description="The parameters of the method.")
 #     return_type: Optional[str] = Field(None, description="The return type of the method.")
+
+
+class ModelElementType:
+    REQUIREMENT = "Requirement"
+    SYSTEM_COMPONENT = "SystemComponent"
+    SYSTEM_BUILD = "SystemBuild"
+    BEHAVIOR = "Behavior"
+
+
+class Requirement(Element):
+    """A requirement element.
+
+    A requirement element represents a requirement. It contains information about the priority, status, and verification method of the requirement.
+    """
+
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+    priority: Optional[str] = Field(None, description="The priority of the requirement.")
+    status: Optional[str] = Field(None, description="The status of the requirement.")
+    verification_method: Optional[str] = Field(None, description="The verification method of the requirement.")

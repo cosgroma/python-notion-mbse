@@ -71,7 +71,7 @@ setup(
     },
     entry_points={
         "console_scripts": [
-            "notion-mbse = notion_mbse.ui.cli:run",
+            "notion-mbse = notion_mbse.ui.cli:cli",
         ]
     },
 )
