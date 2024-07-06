@@ -4,7 +4,7 @@
 Details:
 Created:   Sunday, June 30th 2024, 8:36:38 pm
 -----
-Last Modified: 06/30/2024 11:00:59
+Last Modified: 07/06/2024 04:21:02
 Modified By: Mathew Cosgrove
 -----
 """
@@ -12,11 +12,17 @@ Modified By: Mathew Cosgrove
 __author__ = "Mathew Cosgrove"
 __file__ = "document.py"
 __version__ = "0.1.0"
+import io
 from enum import Enum
 from typing import List
 from typing import Optional
 
+import markdown
 from bs4 import BeautifulSoup
+from docx import Document as DocxDocument
+from pdfminer.high_level import extract_pages
+from pdfminer.layout import LTChar
+from pdfminer.layout import LTTextContainer
 
 # from pydantic.schema import schema
 from pydantic import Field
@@ -165,11 +171,65 @@ class Document(Element):
         for section in self.sections:
             self.section_ids.append(section.id)
 
-    def load_from_docx(self, docx_content: str):
-        pass
+    def load_from_markdown(self, markdown_content: str):
+        # Convert Markdown to HTML
+        html_content = markdown.markdown(markdown_content)
+        self.load_from_html(html_content)
 
-    def load_from_pdf(self, pdf_content: str):
-        pass
+    def load_from_docx(self, docx_file: str):
+        html_content = DocxDocument(docx_file).to_html()
+        self.load_from_html(html_content)
+
+    def load_from_docx_direct(self, docx_content: bytes):
+        doc = DocxDocument(io.BytesIO(docx_content))
+        current_section = None
+        for paragraph in doc.paragraphs:
+            if paragraph.style.name.startswith("Heading"):
+                if current_section:
+                    self.sections.append(current_section)
+                    self.section_ids.append(current_section.id)
+                level = int(paragraph.style.name[-1])
+                current_section = DocumentSection(
+                    name=paragraph.text,
+                    section_level=level,
+                    content="",
+                    document=self.name,
+                )
+            elif current_section:
+                current_section.content += paragraph.text + "\n"
+
+        if current_section:
+            self.sections.append(current_section)
+            self.section_ids.append(current_section.id)
+
+    def load_from_pdf(self, pdf_content: bytes):
+        pdf_file = io.BytesIO(pdf_content)
+        current_section = None
+        for page_layout in extract_pages(pdf_file):
+            for element in page_layout:
+                if isinstance(element, LTTextContainer):
+                    text = element.get_text().strip()
+                    if text:
+                        font_sizes = [char.size for char in element if isinstance(char, LTChar)]
+                        avg_font_size = sum(font_sizes) / len(font_sizes) if font_sizes else 0
+
+                        # Assume larger font sizes indicate headers/section titles
+                        if avg_font_size > 12 and len(text) < 100:  # Adjust these thresholds as needed
+                            if current_section:
+                                self.sections.append(current_section)
+                                self.section_ids.append(current_section.id)
+                            current_section = DocumentSection(
+                                name=text,
+                                section_level=1,  # You might want to adjust this based on font size
+                                content="",
+                                document=self.name,
+                            )
+                        elif current_section:
+                            current_section.content += text + "\n"
+
+        if current_section:
+            self.sections.append(current_section)
+            self.section_ids.append(current_section.id)
 
     # def load(self, filename: str):
     #     if filename.endswith(".html"):

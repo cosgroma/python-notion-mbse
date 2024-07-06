@@ -5,3 +5,7 @@ pymongo
 pydantic
 python-dotenv
 databasetools @ git+https://github.com/cosgroma/database-tools@main
+python-docx
+PyPDF2
+reportlab
+pdfminer.six

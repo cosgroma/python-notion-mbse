@@ -23,8 +23,8 @@ setup(
     license="MIT",
     description="Model Based Systems Engineering using Notion DBs and Relation Columns",
     long_description="{}\n{}".format(
-        re.compile("^.. start-badges.*^.. end-badges", re.M | re.S).sub("", read("README.rst")),
-        re.sub(":[a-z]+:`~?(.*?)`", r"``\1``", read("CHANGELOG.rst")),
+        re.compile("^.. start-badges.*^.. end-badges", re.M | re.S).sub("", read("README.md")),
+        re.sub(":[a-z]+:`~?(.*?)`", r"``\1``", read("CHANGELOG.md")),
     ),
     author="Mathew Cosgrove",
     author_email="cosgroma@gmail.com",
@@ -56,7 +56,7 @@ setup(
         "Topic :: Utilities",
     ],
     project_urls={
-        "Changelog": "https://github.com/cosgroma/python-notion-mbse/blob/master/CHANGELOG.rst",
+        "Changelog": "https://github.com/cosgroma/python-notion-mbse/blob/master/CHANGELOG.md",
         "Issue Tracker": "https://github.com/cosgroma/python-notion-mbse/issues",
     },
     keywords=[

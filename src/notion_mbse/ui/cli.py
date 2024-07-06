@@ -35,12 +35,6 @@ def cli():
     """A CLI tool for interacting with Notion."""
 
 
-# @cli.command()
-# @click.argument("names", nargs=-1)
-# def run(names):
-#     click.echo(compute(names))
-
-
 @cli.command()
 @common_options
 @click.argument("url")
