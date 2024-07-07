@@ -1,0 +1,79 @@
+site_name: Python Notion MBSE
+site_description: A Python package for Model-Based Systems Engineering (MBSE) using Notion.so as the backend.
+site_url: http://pages.github.com/cosgroma/python-notion-mbse
+theme:
+    name: 'material'
+    palette:
+      - scheme: 'default'
+        media: '(prefers-color-scheme: light)'
+        toggle:
+          icon: 'material/lightbulb'
+          name: 'Switch to dark mode'
+      - scheme: 'slate'
+        media: '(prefers-color-scheme: dark)'
+        primary: 'blue'
+        toggle:
+          icon: 'material/lightbulb-outline'
+          name: 'Switch to light mode'
+    features:
+        - navigation.sections
+
+repo_name: 'cosgroma/python-notion-mbse'
+repo_url: https://github.com/cosgroma/python-notion-mbse
+edit_uri: ""
+
+plugins:
+    - search
+    - table-reader
+
+nav:
+    - Introduction: 'index.md'
+    - Usage:
+        - Quick Start: 'usage/quickstart.md'
+        - Tutorial: 'usage/tutorial.md'
+        - User Guide: 'usage/user-guide.md'
+        - Advanced Usage: 'usage/advanced.md'
+        - FAQ: 'usage/faq.md'
+    - Technical Documentation:
+        - Development Plan: 'developer/dev-plan.md'
+        - Requirements: 'developer/requirements.md'
+        - Architecture:
+            - Design: 'developer/design.md'
+            - Code: 'developer/src.md'
+        - Testing:
+            - Unit Tests: 'developer/tests.md'
+            - Troubleshooting: 'developer/troubleshooting.md'
+        - Security: 'developer/security.md'
+        - Integration:
+            - Interface: 'integrators/interface.md'
+            - API: 'integrators/api.md'
+            - Exceptions: 'integrators/exceptions.md'
+            - Environment Variables: 'integrators/environment_variables.md'
+    - Community:
+        - Contributing: 'community/contributing.md'
+        - Code of Conduct: 'community/code-of-conduct.md'
+        - License: 'community/license.md'
+        - Project Information:
+            - Support: 'community/support.md'
+            - Roadmap: 'community/roadmap.md'
+            - Changelog: 'community/changelog.md'
+            - Versioning: 'community/versioning.md'
+            - Acknowledgements: 'community/acknowledgements.md'
+        - Authors: 'community/authors.md'
+
+markdown_extensions:
+    - admonition
+    - codehilite:
+        css_class: highlight
+    - mkautodoc
+    - toc:
+        permalink: true
+    - pymdownx.arithmatex
+    - pymdownx.betterem
+    - pymdownx.caret
+
+extra_css:
+    - 'css/custom.css'
+
+extra_javascript:
+    - 'js/sidecar-1.5.0.js'
