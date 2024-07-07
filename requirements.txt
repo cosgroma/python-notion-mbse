@@ -9,3 +9,7 @@ python-docx
 PyPDF2
 reportlab
 pdfminer.six
+mkdocs-material
+pymdown-extensions
+mkautodoc
+mkdocs-click
