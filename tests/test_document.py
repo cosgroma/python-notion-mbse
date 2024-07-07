@@ -14,7 +14,7 @@ def test_document_section():
         type=DocumentSectionType.INTRODUCTION,
         sub_type=DocumentSectionFormatType.SECTION,
         section_level=1,
-        section_description="This is the introduction section.",
+        description="This is the introduction section.",
         document="Example Document",
         section_number=1,
         content="The content of the introduction section.",
@@ -24,10 +24,23 @@ def test_document_section():
         author="John Doe",
         summary="A brief overview of the introduction.",
         related_sections=["Section 2", "Section 3"],
-        section_id="12345",
     )
 
-    print(section.model_dump())
+    assert section.name == "Introduction"
+    assert section.type == DocumentSectionType.INTRODUCTION
+    assert section.sub_type == DocumentSectionFormatType.SECTION
+    assert section.section_level == 1
+    assert section.description == "This is the introduction section."
+    assert section.document == "Example Document"
+    assert section.section_number == 1
+    assert section.content == "The content of the introduction section."
+    assert section.section_length == 100
+    assert section.references == ["Ref1", "Ref2"]
+    assert section.tags == ["intro", "overview"]
+    assert section.author == "John Doe"
+    assert section.summary == "A brief overview of the introduction."
+    assert section.related_sections == ["Section 2", "Section 3"]
+    assert section.section_id == "12345"
 
 
 def test_document():
@@ -49,7 +62,7 @@ def test_document():
         references=["Ref1", "Ref2"],
     )
 
-    print(document.model_dump())
+    assert document.name == "Example Document"
 
 
 def test_file_document():
@@ -75,7 +88,7 @@ def test_file_document():
         file_ext="txt",
     )
 
-    print(file_document.model_dump())
+    assert file_document.name == "Example File"
 
 
 def test_document_from_html():
@@ -104,4 +117,7 @@ def test_document_from_html():
     document_name = "Example Document"
     sections = html_to_docsections(html_content, document_name)
     for section in sections:
-        print(section.model_dump())
+        assert section.document == document_name
+        assert section.name in ["Introduction", "Background", "Objectives"]
+        assert section.content
+        print(section.content)

@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-import re
 from pathlib import Path
 
 from setuptools import find_packages
@@ -22,10 +21,11 @@ setup(
     version="0.0.0",
     license="MIT",
     description="Model Based Systems Engineering using Notion DBs and Relation Columns",
-    long_description="{}\n{}".format(
-        re.compile("^.. start-badges.*^.. end-badges", re.M | re.S).sub("", read("README.md")),
-        re.sub(":[a-z]+:`~?(.*?)`", r"``\1``", read("CHANGELOG.md")),
-    ),
+    long_description="",
+    # format(
+    #     re.compile("^.. start-badges.*^.. end-badges", re.M | re.S).sub("", read("README.md")),
+    #     re.sub(":[a-z]+:`~?(.*?)`", r"``\1``", read("CHANGELOG.md")),
+    # ),
     author="Mathew Cosgrove",
     author_email="cosgroma@gmail.com",
     url="https://github.com/cosgroma/python-notion-mbse",

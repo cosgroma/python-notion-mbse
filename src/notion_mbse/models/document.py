@@ -4,7 +4,7 @@
 Details:
 Created:   Sunday, June 30th 2024, 8:36:38 pm
 -----
-Last Modified: 07/06/2024 04:21:02
+Last Modified: 07/06/2024 06:59:14
 Modified By: Mathew Cosgrove
 -----
 """
@@ -14,15 +14,14 @@ __file__ = "document.py"
 __version__ = "0.1.0"
 import io
 from enum import Enum
+from pathlib import Path
 from typing import List
 from typing import Optional
 
 import markdown
+import requests
 from bs4 import BeautifulSoup
 from docx import Document as DocxDocument
-from pdfminer.high_level import extract_pages
-from pdfminer.layout import LTChar
-from pdfminer.layout import LTTextContainer
 
 # from pydantic.schema import schema
 from pydantic import Field
@@ -114,7 +113,7 @@ class DocumentSection(Element):
     section_number: Optional[int] = Field(None, description="The number of the section.")
     document: Optional[str] = Field(None, description="The document the section belongs to.")
     page: Optional[int] = Field(None, description="The page the section belongs to.")
-    parent_section_number: Optional[int] = Field(None, description="The parent section number.")
+    parent_id: Optional[str] = Field(None, description="The parent section id.")
     author: Optional[str] = Field(None, description="The author of the section.")
     content: Optional[str] = Field(None, description="The content of the section.")
     section_length: Optional[int] = Field(None, description="The length of the section.")
@@ -165,6 +164,15 @@ class Document(Element):
     summary: Optional[str] = Field(None, description="The summary of the document.")
     keywords: Optional[List[str]] = Field([], description="The keywords of the document.")
     references: Optional[List[str]] = Field([], description="The references of the document.")
+    sections: Optional[List[DocumentSection]] = Field([], description="The sections of the document.")
+
+    def add_section(self, section: DocumentSection):
+        self.sections.append(section)
+        self.section_ids.append(section.id)
+
+    def remove_section(self, section_id: str):
+        self.sections = [section for section in self.sections if section.id != section_id]
+        self.section_ids = [section_id for section_id in self.section_ids if section_id != section_id]
 
     def load_from_html(self, html_content: str):
         self.sections = html_to_docsections(html_content, self.name)
@@ -179,6 +187,31 @@ class Document(Element):
     def load_from_docx(self, docx_file: str):
         html_content = DocxDocument(docx_file).to_html()
         self.load_from_html(html_content)
+
+    def load_from_docx_direct_simple(self, docx_content: bytes):
+        doc = DocxDocument(io.BytesIO(docx_content))
+        for paragraph in doc.paragraphs:
+            section = DocumentSection(
+                name=paragraph.text,
+                content=paragraph.text,
+                document=self.name,
+            )
+            self.sections.append(section)
+            self.section_ids.append(section.id)
+
+    def load_from_pdf_simple(self, pdf_content: bytes):
+        from PyPDF2 import PdfReader
+
+        pdf_reader = PdfReader(io.BytesIO(pdf_content))
+        for page in pdf_reader.pages:
+            text = page.extract_text()
+            section = DocumentSection(
+                name=f"Page {pdf_reader.pages.index(page) + 1}",
+                content=text,
+                document=self.name,
+            )
+            self.sections.append(section)
+            self.section_ids.append(section.id)
 
     def load_from_docx_direct(self, docx_content: bytes):
         doc = DocxDocument(io.BytesIO(docx_content))
@@ -203,6 +236,10 @@ class Document(Element):
             self.section_ids.append(current_section.id)
 
     def load_from_pdf(self, pdf_content: bytes):
+        from pdfminer.high_level import extract_pages
+        from pdfminer.layout import LTChar
+        from pdfminer.layout import LTTextContainer
+
         pdf_file = io.BytesIO(pdf_content)
         current_section = None
         for page_layout in extract_pages(pdf_file):
@@ -231,15 +268,118 @@ class Document(Element):
             self.sections.append(current_section)
             self.section_ids.append(current_section.id)
 
-    # def load(self, filename: str):
-    #     if filename.endswith(".html"):
-    #         with open(filename) as file:
-    #             html_content = file.read()
-    #             self.load_from_html(html_content)
-    #     elif filename.endswith(".docx"):
-    #         with open(filename) as file:
-    #             docx_content = file.read()
-    #             self.load_from_docx(docx_content)
+    def load(self, file_path: str, simple: bool = False):
+        if file_path.endswith(".html"):
+            with Path.open(file_path) as file:
+                self.load_from_html(file.read())
+        elif file_path.endswith(".md"):
+            with Path.open(file_path) as file:
+                self.load_from_markdown(file.read())
+        elif file_path.endswith(".docx"):
+            if simple:
+                with Path.open(file_path, "rb") as file:
+                    self.load_from_docx_direct_simple(file.read())
+            else:
+                self.load_from_docx(file_path)
+        elif file_path.endswith(".pdf"):
+            if simple:
+                with Path.open(file_path, "rb") as file:
+                    self.load_from_pdf_simple(file.read())
+            else:
+                self.load_from_pdf(file_path)
+        else:
+            raise ValueError("Unsupported file format")
+
+    def load_from_url(self, url: str, simple: bool = False):
+        response = requests.get(url, timeout=10)
+        content = response.content
+        if url.endswith(".html"):
+            self.load_from_html(content.decode("utf-8"))
+        elif url.endswith(".md"):
+            self.load_from_markdown(content.decode("utf-8"))
+        elif url.endswith(".docx"):
+            if simple:
+                self.load_from_docx_direct_simple(content)
+            else:
+                self.load_from_docx_direct(content)
+        elif url.endswith(".pdf"):
+            if simple:
+                self.load_from_pdf_simple(content)
+            else:
+                self.load_from_pdf(content)
+        else:
+            raise ValueError("Unsupported file format")
+
+    def export_to_html(self) -> str:
+        html = "<html><body>"
+        for section in self.sections:
+            html += f"<h2>{section.name}</h2>"
+            html += f"<div>{section.content}</div>"
+        html += "</body></html>"
+        return html
+
+    def export_to_docx(self) -> bytes:
+        doc = DocxDocument()
+        for section in self.sections:
+            doc.add_heading(section.name, level=2)
+            doc.add_paragraph(section.content)
+
+        buffer = io.BytesIO()
+        doc.save(buffer)
+        buffer.seek(0)
+        return buffer.getvalue()
+
+    def export_to_pdf(self) -> bytes:
+        from reportlab.lib.pagesizes import letter
+        from reportlab.pdfgen import canvas
+
+        buffer = io.BytesIO()
+        c = canvas.Canvas(buffer, pagesize=letter)
+        width, height = letter
+        for section in self.sections:
+            c.setFont("Helvetica-Bold", 14)
+            c.drawString(72, height - 72, section.name)
+            c.setFont("Helvetica", 12)
+            text = c.beginText(72, height - 100)
+            text.textLines(section.content)
+            c.drawText(text)
+            c.showPage()
+        c.save()
+        buffer.seek(0)
+        return buffer.getvalue()
+
+    def export_to_markdown(self) -> str:
+        markdown_content = ""
+        for section in self.sections:
+            level = "#" * section.section_level
+            markdown_content += f"{level} {section.name}\n\n"
+            markdown_content += f"{section.content}\n\n"
+        return markdown_content
+
+    def export(self, file_path: str):
+        if file_path.endswith(".html"):
+            with Path.open(file_path, "w") as file:
+                file.write(self.export_to_html())
+        elif file_path.endswith(".docx"):
+            with Path.open(file_path, "wb") as file:
+                file.write(self.export_to_docx())
+        elif file_path.endswith(".pdf"):
+            with Path.open(file_path, "wb") as file:
+                file.write(self.export_to_pdf())
+        else:
+            raise ValueError("Unsupported file format")
+
+
+def load_document(file_path: str, simple: bool = False) -> Document:
+    doc = Document(name=file_path.split("/")[-1])
+    doc.load(file_path, simple)
+    return doc
+
+
+def load_document_from_url(url: str, simple: bool = False) -> Document:
+    doc = Document(name=url)
+    doc.load_from_url(url, simple)
+    return doc
 
 
 class FileType(Enum):
@@ -306,3 +446,54 @@ class FileDocument(Document):
     file_size: Optional[int] = Field(None, description="The size of the file.")
     file_format: Optional[str] = Field(None, description="The format of the file.")
     file_ext: Optional[str] = Field(None, description="The extension of the file.")
+
+    def load(self, file_path: str, simple: bool = False):
+        import mimetypes
+
+        self.file_path = file_path
+        self.file_size = Path.stat(file_path).st_size
+        self.file_format = mimetypes.guess_type(file_path)[0]
+        self.file_ext = Path.suffix(file_path)[1][1:]
+        if self.file_ext in ["html", "docx", "pdf"]:
+            self.load(file_path, simple)
+        else:
+            raise ValueError("Unsupported file format")
+
+
+# class Specification(BaseModel):
+#     model_config = ConfigDict(arbitrary_types_allowed=True)
+#     name: str
+#     acronym: Optional[str] = None
+#     version: str
+#     status: str
+#     reference_id: Optional[str] = None
+#     published_date: datetime.date
+#     link: str
+
+
+# class Specification(Document):
+#     name: str
+#     acronym: Optional[str] = None
+#     version: str
+#     status: str
+#     reference_id: Optional[str] = None
+#     published_date: datetime.date
+#     link: str
+
+#     @classmethod
+#     def from_specification(cls, spec: Specification):
+#         init_dict = {
+#             "name": spec.acronym,
+#             "spec_name": spec.name,
+#             "version": spec.version,
+#             "status": spec.status,
+#             "published_date": spec.published_date,
+#             "link": spec.link,
+#         }
+#         return cls.new(**init_dict)
+
+#     def __str__(self):
+#         return f"Specification({self.name}, {self.spec_name}, {self.link})"
+
+#     def model_dump(self):
+#         return json.dumps(self.dict(), indent=4)
