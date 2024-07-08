@@ -4,7 +4,7 @@
 Details:
 Created:   Sunday, June 30th 2024, 8:36:38 pm
 -----
-Last Modified: 07/06/2024 06:59:14
+Last Modified: 07/07/2024 07:07:57
 Modified By: Mathew Cosgrove
 -----
 """
@@ -185,8 +185,34 @@ class Document(Element):
         self.load_from_html(html_content)
 
     def load_from_docx(self, docx_file: str):
-        html_content = DocxDocument(docx_file).to_html()
+        html_content = DocxDocument(docx_file)
         self.load_from_html(html_content)
+
+    def load_from_docx_file(self, docx_file: str):
+        doc = DocxDocument(docx_file)
+        current_section = None
+        for paragraph in doc.paragraphs:
+            print(paragraph.style.name)
+            if paragraph.style.name.startswith("Heading"):
+                if current_section:
+                    self.sections.append(current_section)
+                    self.section_ids.append(current_section.id)
+
+                print(f"Section Change: {paragraph.text}")
+                ## TODO: Determine level based on something
+                level = 0
+                current_section = DocumentSection(
+                    name=paragraph.text,
+                    section_level=level,
+                    content="",
+                    document=self.name,
+                )
+            elif current_section:
+                current_section.content += paragraph.text + "\n"
+
+        if current_section:
+            self.sections.append(current_section)
+            self.section_ids.append(current_section.id)
 
     def load_from_docx_direct_simple(self, docx_content: bytes):
         doc = DocxDocument(io.BytesIO(docx_content))

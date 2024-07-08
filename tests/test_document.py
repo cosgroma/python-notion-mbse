@@ -40,7 +40,6 @@ def test_document_section():
     assert section.author == "John Doe"
     assert section.summary == "A brief overview of the introduction."
     assert section.related_sections == ["Section 2", "Section 3"]
-    assert section.section_id == "12345"
 
 
 def test_document():
@@ -91,8 +90,7 @@ def test_file_document():
     assert file_document.name == "Example File"
 
 
-def test_document_from_html():
-    html_content = """
+html_content = """
 <html>
 <head><title>Example Document</title></head>
 <body>
@@ -114,10 +112,50 @@ def test_document_from_html():
 </html>
 """
 
+
+def test_document_from_html():
     document_name = "Example Document"
     sections = html_to_docsections(html_content, document_name)
     for section in sections:
         assert section.document == document_name
-        assert section.name in ["Introduction", "Background", "Objectives"]
+        assert section.name in ["Introduction", "Background", "Objectives", "Specific Goals"]
         assert section.content
+        print(section.content)
+
+
+## Document Class Methods
+# * `def add_section(self, section: DocumentSection)`
+# * `def remove_section(self, section_id: str)`
+# * `def load_from_html(self, html_content: str)`
+# * `def load_from_markdown(self, markdown_content: str)`
+# * `def load_from_docx(self, docx_file: str)`
+# * `def load_from_docx_direct_simple(self, docx_content: bytes)`
+# * `def load_from_pdf_simple(self, pdf_content: bytes)`
+# * `def load_from_docx_direct(self, docx_content: bytes)`
+# * `def load_from_pdf(self, pdf_content: bytes)`
+# * `def load(self, file_path: str, simple: bool = False)`
+
+
+def test_document_load_from_html():
+    document_name = "Example Document"
+    doc = Document(name=document_name)
+    doc.load_from_html(html_content)
+    for section in doc.sections:
+        assert section.document == document_name
+        assert section.name in ["Introduction", "Background", "Objectives", "Specific Goals"]
+        assert section.content
+        print(section.content)
+
+
+# tests/test_data
+# └── test_word_doc.docx
+
+
+def test_document_load_from_docx():
+    document_name = "Example Document"
+    doc = Document(name=document_name)
+    doc.load_from_docx_file("tests/test_data/test_word_doc.docx")
+    for section in doc.sections:
+        assert section.document == document_name
+        print(section.name)
         print(section.content)

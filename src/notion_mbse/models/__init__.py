@@ -4,7 +4,7 @@
 Details:
 Created:   Sunday, June 30th 2024, 8:31:36 pm
 -----
-Last Modified: 06/30/2024 10:59:29
+Last Modified: 07/07/2024 06:34:01
 Modified By: Mathew Cosgrove
 -----
 """
@@ -14,6 +14,7 @@ __file__ = "__init__.py"
 __version__ = "0.1.0"
 
 from .document import DocumentSection
+from .element import DirectedRelationship
 from .element import Element
 from .element import PydanticObjectId
 from .element import Relationship
@@ -31,4 +32,5 @@ __all__ = [
     "create_dynamic_page_class",
     "create_db_page_from_schema",
     "DocumentSection",
+    "DirectedRelationship",
 ]

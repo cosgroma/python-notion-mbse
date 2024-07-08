@@ -1,8 +1,8 @@
 from bson import ObjectId
 
+from notion_mbse.models import DirectedRelationship
 from notion_mbse.models import Element
 from notion_mbse.models import PydanticObjectId
-from notion_mbse.models import Relationship
 from notion_mbse.models import RelationshipType
 
 
@@ -94,7 +94,7 @@ def test_element_set_with_element():
     assert element.modified_at is None
 
 
-def test_relationship():
+def test_directed_relationship():
     source_element = Element(
         name="Source Element",
         description="This is the source element.",
@@ -119,7 +119,7 @@ def test_relationship():
         documentation="This is the documentation for the target element.",
         ref_ids=["Ref1", "Ref2"],
     )
-    relationship = Relationship(
+    relationship = DirectedRelationship(
         name="Example Relationship",
         description="This is an example relationship.",
         version="1.0.0",
@@ -130,13 +130,23 @@ def test_relationship():
         status="active",
         documentation="This is the documentation for the example relationship.",
         ref_ids=["Ref1", "Ref2"],
-        type=RelationshipType.ASSOCIATION,
+        type=RelationshipType.DEPENDENCY,
         source_element_id=source_element.id,
         target_element_id=target_element.id,
     )
-    print(relationship.model_dump())
-    rev_relationship = Relationship(
-        name="Example Relationship",
+    assert relationship.id
+    assert relationship.name == "Example Relationship"
+    assert relationship.description == "This is an example relationship."
+    assert relationship.version == "1.0.0"
+    assert relationship.tags == ["example", "test"]
+    assert relationship.type == RelationshipType.DEPENDENCY
+    assert relationship.source_element_id == source_element.id
+    assert relationship.target_element_id == target_element.id
+    assert relationship.created_at
+    assert relationship.modified_at is None
+
+    rev_relationship = DirectedRelationship(
+        name="Example DirectedRelationship",
         description="This is an example relationship.",
         version="1.0.0",
         tags=["example", "test"],
@@ -146,8 +156,17 @@ def test_relationship():
         status="active",
         documentation="This is the documentation for the example relationship.",
         ref_ids=["Ref1", "Ref2"],
-        type=RelationshipType.ASSOCIATION,
+        type=RelationshipType.DEPENDENCY,
         source_element_id=target_element.id,
         target_element_id=source_element.id,
     )
-    print(rev_relationship.model_dump())
+
+    assert rev_relationship.id
+    assert rev_relationship.name == "Example DirectedRelationship"
+    assert rev_relationship.description == "This is an example relationship."
+    assert rev_relationship.version == "1.0.0"
+    assert rev_relationship.tags == ["example", "test"]
+    assert rev_relationship.type == RelationshipType.DEPENDENCY
+
+    assert rev_relationship.source_element_id == target_element.id
+    assert rev_relationship.target_element_id == source_element.id
