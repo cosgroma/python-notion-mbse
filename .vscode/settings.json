@@ -11,5 +11,7 @@
         "**/.coverage": true,
         "**/.ruff_cache": true,
         "**/coverage.xml": true,
-    }
+    },
+    "python.analysis.typeCheckingMode": "basic",
+    "python.analysis.autoImportCompletions": true
 }

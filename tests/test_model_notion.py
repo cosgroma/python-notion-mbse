@@ -14,13 +14,10 @@ from notion_mbse.models import create_db_page_from_schema
 
 dotenv.load_dotenv()
 
-
 NOTION_API_KEY = os.getenv("NOTION_API_KEY")
 MONGO_URI = os.getenv("MONGO_URI")
 NOTION_OMG_SPEC_DB_URL = os.getenv("NOTION_OMG_SPEC_DB_URL")
 NOTION_MBSE_ROOT_URL = os.getenv("NOTION_MBSE_ROOT_URL")
-
-## Data Models
 
 
 def test_schema_to_notion():

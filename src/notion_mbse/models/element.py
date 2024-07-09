@@ -4,37 +4,19 @@ from typing import List
 from typing import Optional
 
 # from pydantic.schema import schema
-from bson import ObjectId
 from pydantic import BaseModel
 from pydantic import ConfigDict
 from pydantic import Field
 from pydantic import field_serializer
 
-
-class PydanticObjectId(ObjectId):
-    @classmethod
-    def validate(cls, v):
-        if isinstance(v, ObjectId):
-            return str(v)
-        if isinstance(v, str) and ObjectId.is_valid(v):
-            return str(ObjectId(v))
-        raise ValueError("Invalid ObjectId")
-
-    @classmethod
-    def __get_pydantic_json_schema__(cls, model_config, handler):
-        return {"type": "string", "format": "ObjectId"}
-
-
-# An Element is a constituent of a model. Descendants of Element provide semantics appropriate to the concept they
-# represent.
-# Every Element has the inherent capability of owning other Elements. When an Element is removed from a model, all its
-# ownedElements are also necessarily removed from the model. The abstract syntax for each kind of Element specifies
-# what other kind of Elements it may own. Every Element in a model must be owned by exactly one other Element of that
-# model, with the exception of the top-level Packages of the model
+from .object_id import PydanticObjectId
 
 
 class Element(BaseModel):
-    """A base element contains common attributes that are shared by all elements. It contains information about the unique identifier, name, description, version, tags, type, sub-type, created by, created at, modified by, modified at, status, and documentation."""
+    """Element is the base for all data model elements.
+
+    A base element contains common attributes that are shared by all elements. It contains information about the unique identifier, name, description, version, tags, type, sub-type, created by, created at, modified by, modified at, status, and documentation.
+    """
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
     id: PydanticObjectId = Field(
@@ -90,6 +72,14 @@ class Element(BaseModel):
     def set_with_element(self, element: "Element"):
         for key, value in element.model_dump().items():
             setattr(self, key, value)
+
+
+# An Element is a constituent of a model. Descendants of Element provide semantics appropriate to the concept they
+# represent.
+# Every Element has the inherent capability of owning other Elements. When an Element is removed from a model, all its
+# ownedElements are also necessarily removed from the model. The abstract syntax for each kind of Element specifies
+# what other kind of Elements it may own. Every Element in a model must be owned by exactly one other Element of that
+# model, with the exception of the top-level Packages of the model
 
 
 class RelationshipType(Enum):
