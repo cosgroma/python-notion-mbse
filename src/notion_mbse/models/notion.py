@@ -4,7 +4,7 @@
 Details:
 Created:   Saturday, June 29th 2024, 7:16:19 pm
 -----
-Last Modified: 06/30/2024 08:33:40
+Last Modified: 07/09/2024 02:42:37
 Modified By: Mathew Cosgrove
 -----
 """
@@ -13,6 +13,7 @@ __author__ = "Mathew Cosgrove"
 __file__ = "notion.py"
 __version__ = "0.1.0"
 
+import logging
 from typing import Any
 from typing import Dict
 from typing import List
@@ -32,12 +33,18 @@ from notion_objects import Text
 from notion_objects import TitleText
 from notion_objects.properties import Property
 
+notion_logger = logging.getLogger(__name__)
+
 
 class BasePage(Page):
     name = TitleText("Name")
 
     def __str__(self):
         return f"{self.__class__.__name__}({self.id} - {self.name})"
+
+    @classmethod
+    def get(cls, field: str) -> Any:
+        return getattr(cls, field, None)
 
     @classmethod
     def get_properties(cls) -> List[Property]:
@@ -81,6 +88,19 @@ SKIP_FIELDS = {
 
 
 def create_db_page_from_schema(schema: Dict[str, Union[str, Dict[str, Any]]]) -> Type[BasePage]:
+    """
+    Create a database page class dynamically based on the given schema.
+
+    Args:
+        schema (Dict[str, Union[str, Dict[str, Any]]]): The schema defining the structure of the database page.
+
+    Returns:
+        Type[BasePage]: The dynamically created database page class.
+
+    Raises:
+        ValueError: If the schema is not an object, does not have a title, does not have properties, or has no properties.
+
+    """
     if schema["type"] != "object":
         raise ValueError("Schema must be an object")
 
@@ -105,16 +125,18 @@ def create_db_page_from_schema(schema: Dict[str, Union[str, Dict[str, Any]]]) ->
             non_null_field = field_schema["type"]
 
         if field.lower() in SKIP_FIELDS:
-            print(f"Skipping {field}")
+            notion_logger.info(f"Skipping field {field}")
             continue
         elif field in SPECIAL_FIELDS:
             special_field = SPECIAL_FIELDS[field]
-            print(f"Adding special field {field} with type {special_field}")
+            notion_logger.info(f"Adding special field {field} with type {special_field}")
             fields[field] = special_field
         elif non_null_field in SCHEMA_TO_NOTION_TYPE:
             fields[field] = SCHEMA_TO_NOTION_TYPE[non_null_field](field_schema["title"])
         else:
+            notion_logger.info(f"Adding basic text field {field} with title {field_schema['title']}")
             fields[field] = Text(field_schema["title"])
+
     return type(name, (BasePage,), fields)
 
 

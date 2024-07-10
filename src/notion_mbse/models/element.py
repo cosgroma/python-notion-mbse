@@ -18,7 +18,7 @@ class Element(BaseModel):
     A base element contains common attributes that are shared by all elements. It contains information about the unique identifier, name, description, version, tags, type, sub-type, created by, created at, modified by, modified at, status, and documentation.
     """
 
-    model_config = ConfigDict(arbitrary_types_allowed=True)
+    model_config = ConfigDict(arbitrary_types_allowed=True, validate_assignment=True)
     id: PydanticObjectId = Field(
         default_factory=PydanticObjectId,
         description="The unique identifier of the element.",

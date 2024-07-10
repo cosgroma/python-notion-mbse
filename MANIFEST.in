@@ -22,6 +22,7 @@ include *.template
 include *.yml
 include *.yaml
 include *.json
+include config.ini
 
 include *.ps1
 recursive-include notebooks *.ipynb
@@ -39,6 +40,7 @@ global-exclude .github .github/* .github/workflows/* .github/ISSUE_TEMPLATE/* .g
 global-exclude .gitlab .gitlab/* .gitlab-ci.yml
 global-exclude .travis.yml
 global-exclude */version.py
+global-exclude */wip/*
 
 
 global-exclude *.py[cod] __pycache__/* *.so *.dylib
