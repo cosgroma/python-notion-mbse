@@ -14,3 +14,4 @@ pymdown-extensions
 mkautodoc
 mkdocs-click
 mkdocs-table-reader-plugin
+xmlschema
